@@ -2,7 +2,7 @@ import asyncio
 import aiohttp
 import csv
 import time
-import rich
+from rich.progress import track
 
 
 async def data_reader(input_file: str, data_queue: asyncio.Queue):
@@ -16,10 +16,6 @@ async def post_url(url: str, session: aiohttp.ClientSession):
         # print(f'Response status: {resp.status}')
         return await resp.text()
 
-async def bound_fetch(sem, url, session):
-    #Getter function with a semaphore
-    async with sem:
-        await post_url(url, session)
 
 async def main(r, input_file):
     
@@ -31,38 +27,29 @@ async def main(r, input_file):
     tasks = []
 
     #Create instance of Semaphore to limit number of concurrent requests
-    sem = asyncio.Semaphore(100)
+    # sem = asyncio.Semaphore(100)
+    conn = aiohttp.TCPConnector(limit=r)
 
-    #Initiate a counter of iterations, to know how many times the while loop runs.
-    n = 0 
-    while q.empty() == False:
+    #Create one client session that will rule them all
+    async with aiohttp.ClientSession(connector=conn) as session:
+    
+        #This loop injects the data with a 'r' number of simultaneous requests
+        for i in track(range(q.qsize()), description="Building the requests..."):
         
-        #If the size of the stack is less than the number of concurrent requests, we decrease the
-        #number of concurrent requests to adapt to the stack size
+            #Generate the unique url from the Queue stack. Fake code atm.
+            url = base_url
+            payload = await q.get()
+        
+            #Pass the session to each request
+            task = asyncio.ensure_future(post_url(url, session))
+            tasks.append(task)
+    
+        # responses = asyncio.gather(*tasks)
+        for t in track(asyncio.as_completed(tasks), total=len(tasks), description="Running the requests..."):
+            response = await t
+            
+        # await responses
 
-        if q.qsize() < r:
-            r = q.qsize()
-
-        #Create one client session that will rule them all
-        async with aiohttp.ClientSession() as session:
-            
-            #This loop injects the data with a 'r' number of simultaneous requests
-            for i in range(r):
-                
-                #Generate the unique url from the Queue stack. Fake code atm.
-                url = base_url
-                payload = await q.get()
-                # print(q.qsize())
-                
-                #Pass the semaphore and session to each request
-                task = asyncio.ensure_future(bound_fetch(sem, url, session))
-                tasks.append(task)
-            
-            responses = asyncio.gather(*tasks)
-            
-            await responses
-            n+=1
-    print(f'Number of iterations: {n}')        
 
 concurrent_requests = 100
 
