@@ -24,6 +24,8 @@ async def main(r, input_file):
     await data_reader(input_file, q)
 
     base_url = "https://httpbin.org/post"     #Potential API Endpoint
+
+    # base_url = "https://localhost:8080"     #Potential API Endpoint
     tasks = []
 
     #Create instance of Semaphore to limit number of concurrent requests
@@ -51,7 +53,7 @@ async def main(r, input_file):
         # await responses
 
 
-concurrent_requests = 100
+concurrent_requests = 200
 
 start = time.perf_counter()
 asyncio.run(main(concurrent_requests, 'organizations-100.csv'))
