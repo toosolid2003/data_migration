@@ -23,9 +23,9 @@ async def main(r, input_file):
     q = asyncio.Queue()
     await data_reader(input_file, q)
 
-    base_url = "https://httpbin.org/post"     #Potential API Endpoint
+    # base_url = "https://httpbin.org/post"     #Potential API Endpoint
 
-    # base_url = "https://localhost:8080"     #Potential API Endpoint
+    base_url = "https://127.0.0.1/hello"     #Potential API Endpoint
     tasks = []
 
     #Create instance of Semaphore to limit number of concurrent requests

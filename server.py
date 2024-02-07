@@ -1,13 +1,26 @@
-from aiohttp import web
+from fastapi import FastAPI
+from pydantic import BaseModel
 
-async def handle(request):
-    name = request.match_info.get('name', "Anonymous")
-    text = "Hello, " + name
-    return web.Response(text=text)
 
-app = web.Application()
-app.add_routes([web.get('/', handle),
-                web.get('/{name}', handle)])
+class Item(BaseModel):
+    index: int
+    organization: str
+    name: str
+    name: str
+    website: str
+    country: str
+    description: str
+    founded: int
+    industry: str
+    employees: int
 
-if __name__ == '__main__':
-    web.run_app(app)
+app = FastAPI()
+
+
+@app.post("/items/")
+async def create_item(item: Item):
+    return item
+
+@app.get("/hello")
+async def get_item():
+    return 'Hello Thib!'
