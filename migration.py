@@ -12,7 +12,7 @@ async def data_reader(input_file: str, data_queue: asyncio.Queue):
             await data_queue.put(row)
 
 async def post_url(url: str, session: aiohttp.ClientSession):
-    async with session.post(url) as resp:
+    async with session.get(url) as resp:
         # print(f'Response status: {resp.status}')
         return await resp.text()
 
@@ -25,7 +25,7 @@ async def main(r, input_file):
 
     # base_url = "https://httpbin.org/post"     #Potential API Endpoint
 
-    base_url = "https://127.0.0.1/hello"     #Potential API Endpoint
+    base_url = "http://127.0.0.1:8000"     #Potential API Endpoint
     tasks = []
 
     #Create instance of Semaphore to limit number of concurrent requests
@@ -53,10 +53,10 @@ async def main(r, input_file):
         # await responses
 
 
-concurrent_requests = 200
+concurrent_requests = 100
 
 start = time.perf_counter()
-asyncio.run(main(concurrent_requests, 'organizations-100.csv'))
+asyncio.run(main(concurrent_requests, 'organizations-500000.csv'))
 end = time.perf_counter()
 print(f'Performance: {end-start}')
 

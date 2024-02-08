@@ -21,6 +21,6 @@ app = FastAPI()
 async def create_item(item: Item):
     return item
 
-@app.get("/hello")
+@app.get("/")
 async def get_item():
     return 'Hello Thib!'
