@@ -3,24 +3,23 @@ from pydantic import BaseModel
 
 
 class Item(BaseModel):
-    index: int
+    index: str 
     organization: str
-    name: str
-    name: str
-    website: str
-    country: str
-    description: str
-    founded: int
-    industry: str
-    employees: int
+    name: str 
+    website: str 
+    country: str 
+    description: str 
+    founded: str 
+    industry: str 
+    employees: str 
 
 app = FastAPI()
 
 
-@app.post("/items/")
-async def create_item(item: Item):
+@app.post("/")
+async def test_creation(item: Item):
     return item
 
-@app.get("/")
-async def get_item():
-    return 'Hello Thib!'
+# @app.get("/")
+# async def get_item():
+#     return 'Hello Thib!'
