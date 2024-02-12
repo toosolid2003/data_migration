@@ -3,7 +3,6 @@ import aiohttp
 import csv
 import time
 from rich.progress import track
-import json
 
 
 async def data_reader(input_file: str, data_queue: asyncio.Queue):
@@ -16,7 +15,6 @@ async def post_url(url: str, session: aiohttp.ClientSession, payload: dict):
     async with session.post(url, json=payload) as resp:
         # print(f'Response status: {resp.status}')
         return await resp.text()
-        print(resp.text())
 
 
 async def main(r, input_file):
@@ -59,7 +57,8 @@ async def main(r, input_file):
 concurrent_requests = 100
 
 start = time.perf_counter()
-asyncio.run(main(concurrent_requests, 'organizations-100.csv'))
+# asyncio.run(main(concurrent_requests, 'organizations-100.csv'))
+asyncio.run(main(concurrent_requests, 'organizations-500000.csv'))
 end = time.perf_counter()
 print(f'Performance: {end-start}')
 

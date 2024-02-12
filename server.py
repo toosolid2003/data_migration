@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from db import create_connection, create_item
 
+c = create_connection('test.sqlite')
 
 class Item(BaseModel):
     index: str 
@@ -18,6 +20,7 @@ app = FastAPI()
 
 @app.post("/")
 async def test_creation(item: Item):
+    create_item(c, item)
     return item
 
 # @app.get("/")
