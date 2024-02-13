@@ -57,8 +57,8 @@ async def main(r, input_file):
 concurrent_requests = 100
 
 start = time.perf_counter()
-# asyncio.run(main(concurrent_requests, 'organizations-100.csv'))
-asyncio.run(main(concurrent_requests, 'organizations-500000.csv'))
+asyncio.run(main(concurrent_requests, 'organizations-100.csv'))
+# asyncio.run(main(concurrent_requests, 'organizations-500000.csv'))
 end = time.perf_counter()
 print(f'Performance: {end-start}')
 
