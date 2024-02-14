@@ -3,6 +3,7 @@ import aiohttp
 import csv
 import time
 from rich.progress import track
+import argparse
 
 
 async def data_reader(input_file: str, data_queue: asyncio.Queue):
@@ -16,14 +17,12 @@ async def post_url(url: str, session: aiohttp.ClientSession, payload: dict):
         return await resp.text()
 
 
-async def main(r, input_file):
+async def inject(r, input_file, url = "http://127.0.0.1:8000/items"):
     
     #Generate the stack of data
     q = asyncio.Queue()
     await data_reader(input_file, q)
 
-
-    url = "http://127.0.0.1:8000/items"     #Potential API Endpoint
     tasks = []
 
     #Limit the number of concurrent connections, whether with a semaphore or through the transport layer
@@ -52,14 +51,20 @@ async def main(r, input_file):
             response = await t
             
 
-concurrent_requests = 100
-
-start = time.perf_counter()
-asyncio.run(main(concurrent_requests, 'organizations-100.csv'))
-# asyncio.run(main(concurrent_requests, 'organizations-500000.csv'))
-end = time.perf_counter()
-print(f'Performance: {end-start}')
-
-#Current ratio with 100 concurrent_requests: 5747 requests / second!!!
 
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r","--requests", dest='requests', help="Specify the max number of concurrent requests you want", type=int)
+    args = parser.parse_args()
+
+    start = time.perf_counter()
+    asyncio.run(inject(args.requests, 'organizations-100.csv'))
+    # asyncio.run(main(concurrent_requests, 'organizations-500000.csv'))
+    end = time.perf_counter()
+    print(f'Performance: {end-start}')
+    
+    #Current ratio with 100 concurrent_requests: 5747 requests / second!!!
+
+if __name__=="__main__":
+    main() 
