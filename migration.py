@@ -13,7 +13,6 @@ async def data_reader(input_file: str, data_queue: asyncio.Queue):
 
 async def post_url(url: str, session: aiohttp.ClientSession, payload: dict):
     async with session.post(url, json=payload) as resp:
-        # print(f'Response status: {resp.status}')
         return await resp.text()
 
 
@@ -23,36 +22,35 @@ async def main(r, input_file):
     q = asyncio.Queue()
     await data_reader(input_file, q)
 
-    # base_url = "https://httpbin.org/post"     #Potential API Endpoint
 
-    url = "http://127.0.0.1:8000"     #Potential API Endpoint
+    url = "http://127.0.0.1:8000/items"     #Potential API Endpoint
     tasks = []
 
-    #Create instance of Semaphore to limit number of concurrent requests
+    #Limit the number of concurrent connections, whether with a semaphore or through the transport layer
     # sem = asyncio.Semaphore(100)
     conn = aiohttp.TCPConnector(limit=r)
 
     #Create one client session that will rule them all
     async with aiohttp.ClientSession(connector=conn) as session:
     
-        #This loop injects the data with a 'r' number of simultaneous requests
+        #Create as many tasks as there are lines of data to inject
         for i in track(range(q.qsize()), description="Building the requests..."):
         
-            #Generate the unique url from the Queue stack. Fake code atm.
+            #Get the data to inject from the Queue object
             payload = await q.get()
             ind = ['index','organization','name','website','country','description','founded','industry','employees']
             dico = dict(zip(ind, payload))
-            #Pass the session to each request
+
+            #Pass the url, session object and data dict to each request
             task = asyncio.ensure_future(post_url(url, session, dico))
             tasks.append(task)
     
         print(f'We have {len(tasks)} requests in the pipe.')
-        # responses = asyncio.gather(*tasks)
+
+        #Track the completion of requests through an "as_completed"
         for t in track(asyncio.as_completed(tasks), total=len(tasks), description="Running the requests..."):
             response = await t
             
-        # await responses
-
 
 concurrent_requests = 100
 

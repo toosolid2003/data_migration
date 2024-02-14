@@ -18,11 +18,7 @@ class Item(BaseModel):
 app = FastAPI()
 
 
-@app.post("/")
+@app.post("/items")
 async def test_creation(item: Item):
     create_item(c, item)
     return item
-
-# @app.get("/")
-# async def get_item():
-#     return 'Hello Thib!'
