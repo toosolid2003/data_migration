@@ -64,7 +64,6 @@ def main():
     end = time.perf_counter()
     print(f'Performance: {end-start}')
     
-    #Current ratio with 100 concurrent_requests: 5747 requests / second!!!
 
 if __name__=="__main__":
     main() 
