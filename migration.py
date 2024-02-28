@@ -8,12 +8,17 @@ import argparse
 
 async def data_reader(input_file: str, data_queue: asyncio.Queue):
     with open(input_file, newline='') as file:
-        reader = csv.reader(file, delimiter=',')
+        
+        #Read every csv line as a dictionnary, with the first line as keys
+        #Store the data in an asyncio.Queue object
+        reader = csv.DictReader(file, delimiter=',')
         for row in reader:
             await data_queue.put(row)
 
 async def post_url(url: str, session: aiohttp.ClientSession, payload: dict):
     async with session.post(url, json=payload) as resp:
+        if resp.status != 200:
+            print(f'[x] Error {reso.status} on payload {payload}')
         return await resp.text()
 
 
@@ -37,11 +42,9 @@ async def inject(r, input_file, url):
         
             #Get the data to inject from the Queue object
             payload = await q.get()
-            ind = ['index','organization','name','website','country','description','founded','industry','employees']
-            dico = dict(zip(ind, payload))
 
             #Pass the url, session object and data dict to each request
-            task = asyncio.ensure_future(post_url(url, session, dico))
+            task = asyncio.ensure_future(post_url(url, session, payload))
             tasks.append(task)
     
         print(f'We have {len(tasks)} requests in the pipe.')
