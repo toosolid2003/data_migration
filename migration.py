@@ -17,7 +17,7 @@ async def post_url(url: str, session: aiohttp.ClientSession, payload: dict):
         return await resp.text()
 
 
-async def inject(r, input_file, url = "http://127.0.0.1:8000/items"):
+async def inject(r, input_file, url):
     
     #Generate the stack of data
     q = asyncio.Queue()
@@ -56,13 +56,15 @@ async def inject(r, input_file, url = "http://127.0.0.1:8000/items"):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-r","--requests", dest='requests', help="Specify the max number of concurrent requests you want", type=int)
+    parser.add_argument("-i","--input", dest='input', help="Input file in csv format", type=str)
+    parser.add_argument("-o","--output", dest='output', help="Destination of data flow as a URL", type=str)
     args = parser.parse_args()
 
     start = time.perf_counter()
-    # asyncio.run(inject(args.requests, 'organizations-100.csv'))
-    asyncio.run(inject(args.requests, 'organizations-500000.csv'))
+
+    asyncio.run(inject(args.requests, args.input, args.output))
     end = time.perf_counter()
-    print(f'Performance: {end-start}')
+    print(f'Performance: {end-start} secs.')
     
 
 if __name__=="__main__":
