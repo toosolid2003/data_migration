@@ -18,7 +18,7 @@ async def data_reader(input_file: str, data_queue: asyncio.Queue):
 async def post_url(url: str, session: aiohttp.ClientSession, payload: dict):
     async with session.post(url, json=payload) as resp:
         if resp.status != 200:
-            print(f'[x] Error {reso.status} on payload {payload}')
+            print(f'[x] Error {resp.status} on payload {payload}')
         return await resp.text()
 
 
@@ -58,9 +58,9 @@ async def inject(r, input_file, url):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r","--requests", dest='requests', help="Specify the max number of concurrent requests you want", type=int)
-    parser.add_argument("-i","--input", dest='input', help="Input file in csv format", type=str)
-    parser.add_argument("-o","--output", dest='output', help="Destination of data flow as a URL", type=str)
+    parser.add_argument("-r","--requests", dest='requests', help="Specify the max number of concurrent requests you want", required=True, type=int)
+    parser.add_argument("-i","--input", dest='input', help="Input file in csv format", required=True, type=str)
+    parser.add_argument("-o","--output", dest='output', help="Destination of data flow as a URL", required=True, type=str)
     args = parser.parse_args()
 
     start = time.perf_counter()
