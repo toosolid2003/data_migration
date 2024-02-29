@@ -18,8 +18,18 @@ async def data_reader(input_file: str, data_queue: asyncio.Queue):
 async def post_url(url: str, session: aiohttp.ClientSession, payload: dict):
     async with session.post(url, json=payload) as resp:
         if resp.status != 200:
-            print(f'[x] Error {reso.status} on payload {payload}')
-        return await resp.text()
+            return payload
+        
+        await resp.text()
+
+
+def error_log(errors: list):
+    with open('error_log.csv','w', newline='') as csvfile:
+        fields = ['index','organization','name','website','country','description','founded','industry','employees']
+        writer = csv.DictWriter(csvfile,fieldnames=fields)
+        writer.writeheader()
+        for error in errors:
+            writer.writerow(error)
 
 
 async def inject(r, input_file, url):
@@ -50,9 +60,17 @@ async def inject(r, input_file, url):
         print(f'We have {len(tasks)} requests in the pipe.')
 
         #Track the completion of requests through an "as_completed"
+        response = []
         for t in track(asyncio.as_completed(tasks), total=len(tasks), description="Running the requests..."):
-            response = await t
+            r = await t
+            if r is not None:
+                response.append(r)
             
+        
+        #If there are errors, then save them in a csv file
+        if response is not None:
+            print()
+            error_log(response)
 
 
 
