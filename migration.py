@@ -18,8 +18,6 @@ async def data_reader(input_file: str, data_queue: asyncio.Queue):
 async def post_url(url: str, session: aiohttp.ClientSession, payload: dict):
     async with session.post(url, json=payload) as resp:
         if resp.status != 200:
-            print(f'[x] Error {resp.status} on payload {payload}')
-        return await resp.text()
             return payload
         
         await resp.text()
