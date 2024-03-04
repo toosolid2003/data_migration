@@ -17,15 +17,18 @@ async def data_reader(input_file: str, data_queue: asyncio.Queue):
 
 async def post_url(url: str, session: aiohttp.ClientSession, payload: dict):
     async with session.post(url, json=payload) as resp:
+
         if resp.status != 200:
+            payload['status_code'] = resp.status
             return payload
         
         await resp.text()
+        
 
 
 def error_log(errors: list):
     with open('error_log.csv','w', newline='') as csvfile:
-        fields = ['index','organization','name','website','country','description','founded','industry','employees']
+        fields = ['status_code','error_msg','index','organization','name','website','country','description','founded','industry','employees']
         writer = csv.DictWriter(csvfile,fieldnames=fields)
         writer.writeheader()
         for error in errors:
